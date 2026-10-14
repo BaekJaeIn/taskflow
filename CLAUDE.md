@@ -9,6 +9,7 @@ TaskFlow는 TDD 기반 할 일 관리 앱입니다. 개발은 테스트 주도 �
 ## 현재 상태
 
 현재 저장소는 빈 스캐폴드입니다. 소스 코드, 패키지 매니페스트, 도구 설정이 아직 없어서 확정된 빌드/린트/테스트 명령어가 없습니다. `package.json` 스크립트가 만들어지면 단일 테스트 실행 방법(Vitest, Playwright)을 포함한 실제 명령어를 여기에 추가하고 이 섹션은 삭제하세요.
+
 ## 구조
 
 - `backend/` — 서버 측 코드 (Hono, Drizzle ORM, SQLite, Zod). 테스트는 `backend/tests/`에 위치
@@ -18,3 +19,10 @@ TaskFlow는 TDD 기반 할 일 관리 앱입니다. 개발은 테스트 주도 �
 단위/통합 테스트는 Vitest를 사용합니다.
 
 원격 저장소: https://github.com/BaekJaeIn/taskflow.git (로컬에는 아직 `.git`이 없어 `git init` 및 remote 연결이 필요함)
+
+### 코드 컨벤션
+
+- Typescript strict mode
+- 함수형 컴포넌트 + Hooks
+- 에러는 Zod 스키마로 검증
+- 한글 주석 허용
