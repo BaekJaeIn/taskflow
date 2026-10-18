@@ -9,10 +9,10 @@ describe("POST /api/tasks", () => {
     const registerRes = await app.request("/api/auth/register", {
       method: "POST",
       headers: {
-        "Content-Type": "applcation/json",
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        email: "new@test.com",
+        email: "create-task@test.com",
         password: "password123",
       }),
     });
@@ -25,7 +25,7 @@ describe("POST /api/tasks", () => {
     const res = await app.request("/api/tasks", {
       method: "POST",
       headers: {
-        "Content-Type": "applcation/json",
+        "Content-Type": "application/json",
         Authorization: `Bearer ${authToken}`,
       },
       body: JSON.stringify({
@@ -63,7 +63,7 @@ describe("PATCH /api/tasks/:id", () => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        email: "new@test.com",
+        email: "update-task@test.com",
         password: "password123",
       }),
     });
@@ -75,7 +75,7 @@ describe("PATCH /api/tasks/:id", () => {
     const createTaskRes = await app.request("/api/tasks", {
       method: "POST",
       headers: {
-        "Content-Type": "applcation/json",
+        "Content-Type": "application/json",
         Authorization: `Bearer ${authToken}`,
       },
       body: JSON.stringify({
@@ -92,14 +92,14 @@ describe("PATCH /api/tasks/:id", () => {
     const res = await app.request(`/api/tasks/${taskId}`, {
       method: "PATCH",
       headers: {
-        "Content-Type": "applcation/json",
+        "Content-Type": "application/json",
         Authorization: `Bearer ${authToken}`,
       },
       body: JSON.stringify({
         status: "completed",
       }),
     });
-    expect(res.status).toBe(201);
+    expect(res.status).toBe(200);
     const updateTask = await res.json();
     expect(updateTask.status).toBe("completed");
   });
@@ -117,7 +117,7 @@ describe("DELETE /api/tasks/:id", () => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        email: "new@test.com",
+        email: "delete-task@test.com",
         password: "password123",
       }),
     });
@@ -129,7 +129,7 @@ describe("DELETE /api/tasks/:id", () => {
     const createTaskRes = await app.request("/api/tasks", {
       method: "POST",
       headers: {
-        "Content-Type": "applcation/json",
+        "Content-Type": "application/json",
         Authorization: `Bearer ${authToken}`,
       },
       body: JSON.stringify({
