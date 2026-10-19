@@ -1,10 +1,10 @@
 import { useState, type FormEvent } from 'react'
 import FormField from './FormField'
 
-export type SignupCredentials = { email: string; password: string }
+export type RegisterCredentials = { email: string; password: string }
 
-type SignupProps = {
-  onSignup: (credentials: SignupCredentials) => void
+type RegisterProps = {
+  onRegister: (credentials: RegisterCredentials) => void
   /** 서버 등 외부에서 내려온 에러 메시지 */
   error?: string
 }
@@ -28,7 +28,7 @@ function validate(email: string, password: string, confirmPassword: string): Fie
   return errors
 }
 
-export default function Signup({ onSignup, error }: SignupProps) {
+export default function Register({ onRegister, error }: RegisterProps) {
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -40,7 +40,7 @@ export default function Signup({ onSignup, error }: SignupProps) {
 
     const errors = validate(email, password, confirmPassword)
     setFieldErrors(errors)
-    if (Object.keys(errors).length === 0) onSignup({ email, password })
+    if (Object.keys(errors).length === 0) onRegister({ email, password })
   }
 
   return (

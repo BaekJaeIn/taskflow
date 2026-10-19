@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
-import Signup, { type SignupCredentials } from '../components/Signup'
+import Register, { type RegisterCredentials } from '../components/Register'
 import { ApiError } from '../lib/api'
 
 export default function RegisterPage() {
@@ -9,7 +9,7 @@ export default function RegisterPage() {
   const navigate = useNavigate()
   const [error, setError] = useState<string>()
 
-  const handleSignup = async (credentials: SignupCredentials) => {
+  const handleRegister = async (credentials: RegisterCredentials) => {
     setError(undefined)
     try {
       await register(credentials)
@@ -25,7 +25,7 @@ export default function RegisterPage() {
 
   return (
     <div className="flex flex-col gap-4 px-4 py-16">
-      <Signup onSignup={handleSignup} error={error} />
+      <Register onRegister={handleRegister} error={error} />
       <p className="text-center text-sm text-gray-600">
         이미 계정이 있으신가요?{' '}
         <Link to="/login" className="font-medium text-indigo-600 hover:underline">

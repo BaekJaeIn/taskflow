@@ -17,9 +17,9 @@ describe('App routing', () => {
   test('홈 페이지에 회원가입/로그인 링크가 있다', () => {
     renderAt('/')
     expect(screen.getByRole('heading', { level: 1, name: 'TaskFlow' })).toBeInTheDocument()
-    const signup = screen.getAllByRole('link', { name: '회원가입' })
+    const register = screen.getAllByRole('link', { name: '회원가입' })
     const login = screen.getAllByRole('link', { name: '로그인' })
-    expect(signup.every((a) => a.getAttribute('href') === '/register')).toBe(true)
+    expect(register.every((a) => a.getAttribute('href') === '/register')).toBe(true)
     expect(login.every((a) => a.getAttribute('href') === '/login')).toBe(true)
   })
 
