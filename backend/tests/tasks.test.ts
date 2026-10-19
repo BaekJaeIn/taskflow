@@ -105,6 +105,49 @@ describe("PATCH /api/tasks/:id", () => {
   });
 });
 
+describe("PATCH /api/tasks/:id 상태 값", () => {
+  let authToken: string;
+  let taskId: string;
+  const headers = () => ({
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${authToken}`,
+  });
+
+  beforeAll(async () => {
+    const registerRes = await app.request("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: "status-task@test.com", password: "password123" }),
+    });
+    authToken = (await registerRes.json()).token;
+    const createRes = await app.request("/api/tasks", {
+      method: "POST",
+      headers: headers(),
+      body: JSON.stringify({ title: "상태 태스크" }),
+    });
+    taskId = (await createRes.json()).id;
+  });
+
+  test("in_progress 상태로 변경할 수 있다", async () => {
+    const res = await app.request(`/api/tasks/${taskId}`, {
+      method: "PATCH",
+      headers: headers(),
+      body: JSON.stringify({ status: "in_progress" }),
+    });
+    expect(res.status).toBe(200);
+    expect((await res.json()).status).toBe("in_progress");
+  });
+
+  test("허용되지 않은 상태 값은 400을 반환한다", async () => {
+    const res = await app.request(`/api/tasks/${taskId}`, {
+      method: "PATCH",
+      headers: headers(),
+      body: JSON.stringify({ status: "unknown" }),
+    });
+    expect(res.status).toBe(400);
+  });
+});
+
 describe("DELETE /api/tasks/:id", () => {
   let authToken: string;
   let taskId: string;

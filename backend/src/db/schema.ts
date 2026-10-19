@@ -1,7 +1,7 @@
 import { sqliteTable, text, index } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 
-export const TASK_STATUSES = ["pending", "completed"] as const;
+export const TASK_STATUSES = ["pending", "in_progress", "completed"] as const;
 export type TaskStatus = (typeof TASK_STATUSES)[number];
 
 const createdAt = () =>

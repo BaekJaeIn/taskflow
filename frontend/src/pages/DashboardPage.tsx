@@ -1,5 +1,7 @@
-import { useCallback, useEffect, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useAuth } from '../auth/AuthContext'
+import ConfirmDialog from '../components/ConfirmDialog'
+import TaskFormModal, { type TaskInput } from '../components/TaskFormModal'
 import TaskTable, { type Task, type TaskId, type TaskStatus } from '../components/TaskTable'
 import { ApiError, request } from '../lib/api'
 
@@ -7,16 +9,15 @@ export default function DashboardPage() {
   const { logout } = useAuth()
   const [tasks, setTasks] = useState<Task[]>([])
   const [error, setError] = useState<string>()
+  const [formOpen, setFormOpen] = useState(false)
+  const [formError, setFormError] = useState<string>()
+  const [deletingId, setDeletingId] = useState<TaskId | null>(null)
 
-  // 인증이 만료되면 로그아웃, 그 외 에러는 화면에 표시합니다.
-  const run = useCallback(
-    async <T,>(action: () => Promise<T>): Promise<T | undefined> => {
-      try {
-        return await action()
-      } catch (e) {
-        if (e instanceof ApiError && e.status === 401) logout()
-        else setError(e instanceof ApiError ? e.message : '요청에 실패했습니다.')
-      }
+  // 인증이 만료되면 로그아웃하고, 그 외 에러는 메시지로 변환합니다.
+  const handleError = useCallback(
+    (e: unknown): string | undefined => {
+      if (e instanceof ApiError && e.status === 401) return void logout()
+      return e instanceof ApiError ? e.message : '요청에 실패했습니다.'
     },
     [logout],
   )
@@ -28,63 +29,64 @@ export default function DashboardPage() {
         const rows = await request<Task[]>('/tasks')
         if (active) setTasks(rows)
       } catch (e) {
-        if (!active) return
-        if (e instanceof ApiError && e.status === 401) logout()
-        else setError(e instanceof ApiError ? e.message : '요청에 실패했습니다.')
+        if (active) setError(handleError(e))
       }
     })()
     return () => {
       active = false
     }
-  }, [logout])
+  }, [handleError])
 
-  const handleCreate = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const form = e.currentTarget
-    const title = String(new FormData(form).get('title') ?? '').trim()
-    if (!title) return setError('제목을 입력해주세요.')
-    setError(undefined)
+  const closeForm = useCallback(() => {
+    setFormOpen(false)
+    setFormError(undefined)
+  }, [])
 
-    const created = await run(() => request<Task>('/tasks', { method: 'POST', json: { title } }))
-    if (created) {
+  const handleCreate = async (input: TaskInput) => {
+    try {
+      const created = await request<Task>('/tasks', { method: 'POST', json: input })
       setTasks((prev) => [created, ...prev])
-      form.reset()
+      closeForm()
+    } catch (e) {
+      setFormError(handleError(e))
     }
   }
 
   const handleStatusChange = async (id: TaskId, status: TaskStatus) => {
     setError(undefined)
-    const updated = await run(() => request<Task>(`/tasks/${id}`, { method: 'PATCH', json: { status } }))
-    if (updated) setTasks((prev) => prev.map((t) => (t.id === id ? updated : t)))
+    try {
+      const updated = await request<Task>(`/tasks/${id}`, { method: 'PATCH', json: { status } })
+      setTasks((prev) => prev.map((t) => (t.id === id ? updated : t)))
+    } catch (e) {
+      setError(handleError(e))
+    }
   }
 
-  const handleDelete = async (id: TaskId) => {
+  const handleDeleteConfirmed = async () => {
+    if (deletingId === null) return
+    const id = deletingId
+    setDeletingId(null)
     setError(undefined)
-    const ok = await run(() => request<void>(`/tasks/${id}`, { method: 'DELETE' }).then(() => true))
-    if (ok) setTasks((prev) => prev.filter((t) => t.id !== id))
+    try {
+      await request<void>(`/tasks/${id}`, { method: 'DELETE' })
+      setTasks((prev) => prev.filter((t) => t.id !== id))
+    } catch (e) {
+      setError(handleError(e))
+    }
   }
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6 px-4 py-10">
-      <h1 className="text-2xl font-bold text-gray-900">대시보드</h1>
-
-      <form onSubmit={handleCreate} noValidate className="flex gap-2">
-        <label htmlFor="new-task-title" className="sr-only">
-          새 태스크 제목
-        </label>
-        <input
-          id="new-task-title"
-          name="title"
-          placeholder="새 태스크 제목"
-          className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
-        />
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-900">대시보드</h1>
         <button
-          type="submit"
+          type="button"
+          onClick={() => setFormOpen(true)}
           className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-300 focus:outline-none"
         >
-          추가
+          새 태스크 추가
         </button>
-      </form>
+      </div>
 
       {error && (
         <p role="alert" className="error-message rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">
@@ -92,7 +94,17 @@ export default function DashboardPage() {
         </p>
       )}
 
-      <TaskTable tasks={tasks} onStatusChange={handleStatusChange} onDelete={handleDelete} />
+      <TaskTable tasks={tasks} onStatusChange={handleStatusChange} onDelete={setDeletingId} />
+
+      {formOpen && <TaskFormModal onSubmit={handleCreate} onClose={closeForm} error={formError} />}
+      {deletingId !== null && (
+        <ConfirmDialog
+          title="태스크 삭제"
+          message="이 태스크를 삭제할까요? 삭제한 태스크는 복구할 수 없습니다."
+          onConfirm={handleDeleteConfirmed}
+          onCancel={() => setDeletingId(null)}
+        />
+      )}
     </div>
   )
 }
