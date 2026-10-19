@@ -51,7 +51,7 @@ export default function Login({ onLogin, error }: LoginProps) {
       <h1 className="text-xl font-semibold text-gray-900">로그인</h1>
 
       {error && (
-        <p role="alert" className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">
+        <p role="alert" className="error-message rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">
           {error}
         </p>
       )}

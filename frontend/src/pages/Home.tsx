@@ -16,7 +16,7 @@ export default function Home() {
 
       <div className="flex gap-3">
         <Link
-          to="/signup"
+          to="/register"
           className="rounded-md bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-300 focus:outline-none"
         >
           회원가입

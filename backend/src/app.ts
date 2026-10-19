@@ -12,6 +12,7 @@ if (!jwtSecret) throw new Error("JWT_SECRET must be set in production");
 
 const app = new Hono();
 
+app.get("/api/health", (c) => c.json({ status: "ok" }));
 app.route("/api/auth", createAuthRoutes(db, jwtSecret));
 app.route("/api/tasks", createTaskRoutes(db, jwtSecret));
 app.onError(errorHandler);

@@ -9,12 +9,12 @@ type SignupProps = {
   error?: string
 }
 
-type FieldErrors = Partial<Record<'email' | 'password' | 'passwordConfirm', string>>
+type FieldErrors = Partial<Record<'email' | 'password' | 'confirmPassword', string>>
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const MIN_PASSWORD_LENGTH = 8
 
-function validate(email: string, password: string, passwordConfirm: string): FieldErrors {
+function validate(email: string, password: string, confirmPassword: string): FieldErrors {
   const errors: FieldErrors = {}
   if (!email) errors.email = '이메일을 입력해주세요.'
   else if (!EMAIL_PATTERN.test(email)) errors.email = '올바른 이메일 형식이 아닙니다.'
@@ -23,8 +23,8 @@ function validate(email: string, password: string, passwordConfirm: string): Fie
   else if (password.length < MIN_PASSWORD_LENGTH)
     errors.password = `비밀번호는 ${MIN_PASSWORD_LENGTH}자 이상이어야 합니다.`
 
-  if (!passwordConfirm) errors.passwordConfirm = '비밀번호 확인을 입력해주세요.'
-  else if (password !== passwordConfirm) errors.passwordConfirm = '비밀번호가 일치하지 않습니다.'
+  if (!confirmPassword) errors.confirmPassword = '비밀번호 확인을 입력해주세요.'
+  else if (password !== confirmPassword) errors.confirmPassword = '비밀번호가 일치하지 않습니다.'
   return errors
 }
 
@@ -36,9 +36,9 @@ export default function Signup({ onSignup, error }: SignupProps) {
     const data = new FormData(e.currentTarget)
     const email = String(data.get('email') ?? '').trim()
     const password = String(data.get('password') ?? '')
-    const passwordConfirm = String(data.get('passwordConfirm') ?? '')
+    const confirmPassword = String(data.get('confirmPassword') ?? '')
 
-    const errors = validate(email, password, passwordConfirm)
+    const errors = validate(email, password, confirmPassword)
     setFieldErrors(errors)
     if (Object.keys(errors).length === 0) onSignup({ email, password })
   }
@@ -52,7 +52,7 @@ export default function Signup({ onSignup, error }: SignupProps) {
       <h1 className="text-xl font-semibold text-gray-900">회원가입</h1>
 
       {error && (
-        <p role="alert" className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">
+        <p role="alert" className="error-message rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">
           {error}
         </p>
       )}
@@ -67,10 +67,10 @@ export default function Signup({ onSignup, error }: SignupProps) {
       />
       <FormField
         label="비밀번호 확인"
-        name="passwordConfirm"
+        name="confirmPassword"
         type="password"
         autoComplete="new-password"
-        error={fieldErrors.passwordConfirm}
+        error={fieldErrors.confirmPassword}
       />
 
       <button
