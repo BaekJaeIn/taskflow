@@ -20,6 +20,14 @@ describe("createDb", () => {
     expect(existsSync(filename)).toBe(true);
   });
 
+  test("file: 접두사가 붙은 경로(예: file:./db.sqlite)는 접두사를 제거하고 연다", () => {
+    dir = mkdtempSync(join(tmpdir(), "taskflow-db-"));
+    const filename = join(dir, "db.sqlite");
+
+    expect(() => createDb(`file:${filename}`)).not.toThrow();
+    expect(existsSync(filename)).toBe(true);
+  });
+
   test("파일 경로가 아닌 URL(예: postgres)이 주어지면 명확한 에러를 던진다", () => {
     expect(() => createDb("postgresql://user:pass@host:5432/db")).toThrow(/DATABASE_URL/);
   });

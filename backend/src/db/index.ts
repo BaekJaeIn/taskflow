@@ -5,7 +5,9 @@ import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import * as schema from "./schema";
 
-export function createDb(filename = process.env.DATABASE_URL ?? "taskflow.db") {
+export function createDb(databaseUrl = process.env.DATABASE_URL ?? "taskflow.db") {
+  // Prisma/libsql 스타일의 file: 접두사는 better-sqlite3가 이해하지 못하므로 제거합니다.
+  const filename = databaseUrl.replace(/^file:/, "");
   // postgres:// 같은 접속 URL은 SQLite 파일 경로로 쓸 수 없습니다.
   if (/^[a-z][a-z0-9+.-]*:\/\//i.test(filename)) {
     throw new Error(`DATABASE_URL must be a SQLite file path, got a URL: ${filename.split(":")[0]}://...`);
